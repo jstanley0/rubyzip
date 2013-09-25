@@ -166,7 +166,7 @@ module Zip
       end
 
       def read_zip_64_long(io) # :nodoc:
-        io.read(8).unpack('V')[0]
+        io.read(8).unpack('Q<')[0]
       end
 
       def read_c_dir_entry(io) #:nodoc:all

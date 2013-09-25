@@ -15,12 +15,12 @@ module Zip
 
     def merge(binstr)
       return if binstr.empty?
-      id, size, @original_size, @compressed_size, @relative_header_offset, @disk_start_number = binstr.to_s.unpack("vvQQQV")
+      id, size, @original_size, @compressed_size, @relative_header_offset, @disk_start_number = binstr.to_s.unpack("vvQ<Q<Q<V")
     end
 
     def pack_for_local
       return '' unless @original_size && @compressed_sie && @relative_header_offset && @disk_start_number
-      [1, 16, @original_size, @compressed_size, @relative_header_offset, @disk_start_number].pack("vvQQQV")
+      [1, 16, @original_size, @compressed_size, @relative_header_offset, @disk_start_number].pack("vvQ<Q<Q<V")
     end
 
     def pack_for_c_dir
