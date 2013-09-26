@@ -83,6 +83,8 @@ end
 require 'zip/extra_field/generic'
 require 'zip/extra_field/universal_time'
 require 'zip/extra_field/unix'
+require 'zip/extra_field/zip64'
+require 'zip/extra_field/zip64_placeholder'
 
 # Copyright (C) 2002, 2003 Thomas Sondergaard
 # rubyzip is free software; you can redistribute it and/or

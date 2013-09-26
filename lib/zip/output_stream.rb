@@ -145,6 +145,7 @@ module Zip
     def update_local_headers
       pos = @output_stream.pos
       @entry_set.each do |entry|
+        entry.verify_local_header_size!
         @output_stream.pos = entry.local_header_offset
         entry.write_local_entry(@output_stream)
       end

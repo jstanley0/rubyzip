@@ -225,7 +225,7 @@ class ZipLocalEntryTest < Test::Unit::TestCase
 
   def test_writeEntry
     entry = ::Zip::Entry.new("file.zip", "entryName", "my little comment",
-                             "thisIsSomeExtraInformation", 100, 987654,
+                             "\xCD\xEF\x1A\x00thisIsSomeExtraInformation", 100, 987654,
                              ::Zip::Entry::DEFLATED, 400)
     write_to_file("localEntryHeader.bin", "centralEntryHeader.bin", entry)
     entryReadLocal, entryReadCentral = read_from_file("localEntryHeader.bin", "centralEntryHeader.bin")
