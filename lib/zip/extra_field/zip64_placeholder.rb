@@ -12,13 +12,5 @@ module Zip
     def pack_for_local
       "\x00" * 16
     end
-
-    def pack_for_c_dir
-      ""
-    end
-
-    def ==(other)
-      other.is_a?(ExtraField::Zip64Placeholder)
-    end
   end
 end

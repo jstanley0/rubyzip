@@ -3,6 +3,7 @@
 test/5entry_copy.zip
 test/cdirtest.bin
 test/cdir64test.bin
+test/huge.zip
 test/centralEntryHeader.bin
 test/data/generated/
 test/deflatertest.bin

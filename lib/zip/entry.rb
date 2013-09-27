@@ -658,7 +658,11 @@ module Zip
         # if this is a local header entry, create a placeholder
         # so we have room to write a zip64 extra field afterward
         # (we won't know if it's needed until the file data is written)
-        @extra.create('Zip64Placeholder') if for_local_header
+        if for_local_header
+          @extra.create('Zip64Placeholder')
+        else
+          @extra.delete('Zip64Placeholder')
+        end
       end
     end
 

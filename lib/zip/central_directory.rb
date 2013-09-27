@@ -22,16 +22,16 @@ module Zip
     end
 
     def write_to_stream(io) #:nodoc:
-      cdir_size = compute_cdir_size
-      offset = io.tell
+      cdir_offset = io.tell
       @entry_set.each { |entry| entry.write_c_dir_entry(io) }
+      eocd_offset = io.tell
+      cdir_size = eocd_offset - cdir_offset
       has_zip64_entry = @entry_set.any? { |entry| entry.extra['Zip64'] }
-      if has_zip64_entry || offset > 0xFFFFFFFF || cdir_size > 0xFFFFFFFF || @entry_set.size > 0xFFFF
-        zip64_eocd_offset = io.tell
-        write_64_e_o_c_d(io, offset, cdir_size)
-        write_64_eocd_locator(io, zip64_eocd_offset)
+      if has_zip64_entry || cdir_offset > 0xFFFFFFFF || cdir_size > 0xFFFFFFFF || @entry_set.size > 0xFFFF
+        write_64_e_o_c_d(io, cdir_offset, cdir_size)
+        write_64_eocd_locator(io, eocd_offset)
       end
-      write_e_o_c_d(io, offset, cdir_size)
+      write_e_o_c_d(io, cdir_offset, cdir_size)
     end
 
     def write_e_o_c_d(io, offset, cdir_size) #:nodoc:
@@ -80,15 +80,6 @@ module Zip
     end
 
     private :write_64_eocd_locator
-
-    def compute_cdir_size #:nodoc:
-      # does not include eocd
-      @entry_set.inject(0) do |value, entry|
-        entry.cdir_header_size + value
-      end
-    end
-
-    private :compute_cdir_size
 
     def read_64_e_o_c_d(buf) #:nodoc:
       buf                                           = get_64_e_o_c_d(buf)

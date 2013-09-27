@@ -229,6 +229,9 @@ class ZipLocalEntryTest < Test::Unit::TestCase
                              ::Zip::Entry::DEFLATED, 400)
     write_to_file("localEntryHeader.bin", "centralEntryHeader.bin", entry)
     entryReadLocal, entryReadCentral = read_from_file("localEntryHeader.bin", "centralEntryHeader.bin")
+    assert(entryReadLocal.extra['Zip64Placeholder'], 'zip64 placeholder should be used in local file header')
+    entryReadLocal.extra.delete('Zip64Placeholder') # it was removed when writing the c_dir_entry, so remove from compare
+    assert(entryReadCentral.extra['Zip64Placeholder'].nil?, 'zip64 placeholder should not be used in central directory')
     compare_local_entry_headers(entry, entryReadLocal)
     compare_c_dir_entry_headers(entry, entryReadCentral)
   end
