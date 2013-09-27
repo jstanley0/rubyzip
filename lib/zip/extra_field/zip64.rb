@@ -40,7 +40,7 @@ module Zip
       [@original_size || original_size,
        @compressed_size || compressed_size,
        @relative_header_offset || relative_header_offset,
-       @disk_start_number || disk_start_number].compact
+       @disk_start_number || disk_start_number]
     end
 
     def extract(size, format)
