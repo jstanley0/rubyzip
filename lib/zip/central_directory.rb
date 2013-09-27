@@ -25,7 +25,8 @@ module Zip
       cdir_size = compute_cdir_size
       offset = io.tell
       @entry_set.each { |entry| entry.write_c_dir_entry(io) }
-      if offset > 0xFFFFFFFF || cdir_size > 0xFFFFFFFF || @entry_set.size > 0xFFFF
+      has_zip64_entry = @entry_set.any? { |entry| entry.extra['Zip64'] }
+      if has_zip64_entry || offset > 0xFFFFFFFF || cdir_size > 0xFFFFFFFF || @entry_set.size > 0xFFFF
         zip64_eocd_offset = io.tell
         write_64_e_o_c_d(io, offset, cdir_size)
         write_64_eocd_locator(io, zip64_eocd_offset)

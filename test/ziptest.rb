@@ -244,6 +244,22 @@ class ZipLocalEntryTest < Test::Unit::TestCase
     compare_c_dir_entry_headers(entry, entryReadCentral)
   end
 
+  def test_rewriteLocalHeader64
+    buf1 = StringIO.new
+    entry = ::Zip::Entry.new("file.zip", "entryName")
+    entry.write_local_entry(buf1)
+    assert(entry.extra['Zip64'].nil?, "zip64 extra is unnecessarily present")
+
+    buf2 = StringIO.new
+    entry.size = 0x123456789ABCDEF0
+    entry.compressed_size = 0x0123456789ABCDEF
+    entry.write_local_entry(buf2, true)
+    assert_not_nil(entry.extra['Zip64'])
+
+    assert_not_equal(buf1.size, 0)
+    assert_equal(buf1.size, buf2.size) # it can't grow, or we'd clobber file data
+  end
+
   def test_readLocalOffset
     entry = ::Zip::Entry.new("file.zip", "entryName")
     entry.local_header_offset = 12345
@@ -1045,6 +1061,7 @@ class ZipCentralDirectoryTest < Test::Unit::TestCase
     File.open("cdir64test.bin", "rb") { |f| cdirReadback.read_from_stream(f) }
 
     assert_equal(cdir.entries.sort, cdirReadback.entries.sort)
+    assert_equal(VERSION_NEEDED_TO_EXTRACT_ZIP64, cdirReadback.instance_variable_get(:@version_needed_for_extract))
   end
 
   def test_equality

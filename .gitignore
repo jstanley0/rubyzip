@@ -2,6 +2,7 @@
 *.gem
 test/5entry_copy.zip
 test/cdirtest.bin
+test/cdir64test.bin
 test/centralEntryHeader.bin
 test/data/generated/
 test/deflatertest.bin
