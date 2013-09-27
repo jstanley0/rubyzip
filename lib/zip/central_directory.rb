@@ -25,7 +25,7 @@ module Zip
       cdir_size = compute_cdir_size
       offset = io.tell
       @entry_set.each { |entry| entry.write_c_dir_entry(io) }
-      if offset > 0xFFFFFFFF || cdir_size > 0xFFFFFFFF
+      if offset > 0xFFFFFFFF || cdir_size > 0xFFFFFFFF || @entry_set.size > 0xFFFF
         zip64_eocd_offset = io.tell
         write_64_e_o_c_d(io, offset, cdir_size)
         write_64_eocd_locator(io, zip64_eocd_offset)
@@ -38,8 +38,8 @@ module Zip
         END_OF_CDS,
         0, # @numberOfThisDisk
         0, # @numberOfDiskWithStartOfCDir
-        @entry_set ? @entry_set.size : 0,
-        @entry_set ? @entry_set.size : 0,
+        @entry_set ? [@entry_set.size, 0xFFFF].min : 0,
+        @entry_set ? [@entry_set.size, 0xFFFF].min : 0,
         [cdir_size, 0xFFFFFFFF].min,
         [offset, 0xFFFFFFFF].min,
         @comment ? @comment.length : 0
