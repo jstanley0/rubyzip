@@ -24,7 +24,7 @@ module Zip
     end
 
     def merge(binstr)
-      return if binstr.empty
+      return if binstr.empty?
       _, @content = initial_parse(binstr)
     end
 

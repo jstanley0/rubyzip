@@ -649,7 +649,7 @@ module Zip
           # central directory entry entries include whichever fields are necessary
           zip64.original_size = @size if @size >= 0xFFFFFFFF
           zip64.compressed_size = @compressed_size if @compressed_size >= 0xFFFFFFFF
-          zip64.local_header_offset = @local_header_offset if @local_header_offset >= 0xFFFFFFFF
+          zip64.relative_header_offset = @local_header_offset if @local_header_offset >= 0xFFFFFFFF
         end
       else
         @extra.delete('Zip64')
