@@ -37,9 +37,10 @@ class Zip64FullTest < Test::Unit::TestCase
       assert_equal last_text, zf.read('last_file.txt')
     end
 
-    # it might be nice to do a system("zip -T #{test_filename}")
-    # except we can't guarantee the user has a version that supports zip64
-    # (the version that ships with recent OS X releases doesn't!)
+    # note: if this fails, be sure you have UnZip version 6.0 or newer
+    # as this is the first version to support zip64 extensions
+    # but some OSes (*cough* OSX) still bundle a 5.xx release
+    assert system("unzip -t #{test_filename}"), "third-party zip validation failed"
   end
 
 end
