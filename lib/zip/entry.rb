@@ -653,16 +653,23 @@ module Zip
       @version_needed_to_extract = VERSION_NEEDED_TO_EXTRACT_ZIP64 if need_zip64
       # otherwise downlevel readers can safely ignore the extra
 
-      zip64 = @extra.create('Zip64')
       if for_local_header
-        # local header always includes size and compressed size
+        # local entry always needs a zip64 extension, because it's written to the zipfile
+        # before we know the size of the content
+        zip64 = @extra.create('Zip64')
         zip64.original_size = @size
         zip64.compressed_size = @compressed_size
       else
-        # central directory entry entries include whichever fields are necessary
-        zip64.original_size = @size if @size >= 0xFFFFFFFF
-        zip64.compressed_size = @compressed_size if @compressed_size >= 0xFFFFFFFF
-        zip64.relative_header_offset = @local_header_offset if @local_header_offset >= 0xFFFFFFFF
+        # only put a zip64 extension in the central directory entry if it's needed
+        if need_zip64
+          # central directory entry entries include whichever fields are necessary
+          zip64 = @extra.create('Zip64')
+          zip64.original_size = @size if @size >= 0xFFFFFFFF
+          zip64.compressed_size = @compressed_size if @compressed_size >= 0xFFFFFFFF
+          zip64.relative_header_offset = @local_header_offset if @local_header_offset >= 0xFFFFFFFF
+        else
+          @extra.delete('Zip64')
+        end
       end
     end
 

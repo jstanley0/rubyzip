@@ -348,13 +348,13 @@ class ZipFileTest < MiniTest::Unit::TestCase
     assert_equal(res, true)
   end
 
-  def test_zip64_version
+  def test_zip64_demand_cd
     ::Zip.write_zip64_support = true
-    ::FileUtils.touch('test/data/generated/test-zip64-version.txt')
-    zf = ::Zip::File.open('test/data/generated/zip64-version.zip', ::Zip::File::CREATE)
-    zf.add('test1.txt', 'test/data/generated/test-zip64-version.txt')
+    ::FileUtils.touch('test/data/generated/test-zip64-demand-cd.txt')
+    zf = ::Zip::File.open('test/data/generated/zip64-demand-cd.zip', ::Zip::File::CREATE)
+    zf.add('test1.txt', 'test/data/generated/test-zip64-demand-cd.txt')
     zf.close
-    zf2 = ::Zip::File.open('test/data/generated/zip64-version.zip')
+    zf2 = ::Zip::File.open('test/data/generated/zip64-demand-cd.zip')
     refute(zf2.instance_variable_defined?(:@zip_64_extensible))
   end
 

@@ -66,6 +66,8 @@ class ZipLocalEntryTest < MiniTest::Unit::TestCase
                              "thisIsSomeExtraInformation", 100, 987654,
                              ::Zip::Entry::DEFLATED, 400)
     entryLocal, entryCentral = write_to_file("localEntryHeader.bin", "centralEntryHeader.bin", entry)
+    refute_nil(entryLocal.extra['Zip64'], "zip64 extra is missing from local entry")
+    assert(entryCentral.extra['Zip64'].nil?, "zip64 extra is unnecessarily present in cdir entry")
     entryReadLocal, entryReadCentral = read_from_file("localEntryHeader.bin", "centralEntryHeader.bin")
     compare_local_entry_headers(entryLocal, entryReadLocal)
     compare_c_dir_entry_headers(entryCentral, entryReadCentral)
@@ -78,6 +80,8 @@ class ZipLocalEntryTest < MiniTest::Unit::TestCase
                              0x7766554433221100, 0xDEADBEEF, ::Zip::Entry::DEFLATED,
                              0x9988776655443322)
     entryLocal, entryCentral = write_to_file("localEntryHeader.bin", "centralEntryHeader.bin", entry)
+    refute_nil(entryLocal.extra['Zip64'], "zip64 extra is missing from local entry")
+    refute_nil(entryCentral.extra['Zip64'], "zip64 extra is missing from cdir entry")
     entryReadLocal, entryReadCentral = read_from_file("localEntryHeader.bin", "centralEntryHeader.bin")
     compare_local_entry_headers(entryLocal, entryReadLocal)
     compare_c_dir_entry_headers(entryCentral, entryReadCentral)

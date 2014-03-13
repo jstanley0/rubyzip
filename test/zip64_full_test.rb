@@ -14,6 +14,7 @@ if ENV['FULL_ZIP64_TEST']
     end
 
     def test_largeZipFile
+      Zip.write_zip64_support = true
       first_text = 'starting out small'
       last_text = 'this tests files starting after 4GB in the archive'
       test_filename = prepareTestFile('huge.zip')
@@ -31,6 +32,7 @@ if ENV['FULL_ZIP64_TEST']
       end
 
       Zip::File.open(test_filename) do |zf|
+        assert(zf.instance_variable_defined?(:@zip_64_extensible))
         assert_equal %w(first_file.txt huge_file last_file.txt), zf.entries.map(&:name)
         assert_equal first_text, zf.read('first_file.txt')
         assert_equal last_text, zf.read('last_file.txt')
