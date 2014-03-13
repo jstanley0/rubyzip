@@ -348,6 +348,16 @@ class ZipFileTest < MiniTest::Unit::TestCase
     assert_equal(res, true)
   end
 
+  def test_zip64_version
+    ::Zip.write_zip64_support = true
+    ::FileUtils.touch('test/data/generated/test-zip64-version.txt')
+    zf = ::Zip::File.open('test/data/generated/zip64-version.zip', ::Zip::File::CREATE)
+    zf.add('test1.txt', 'test/data/generated/test-zip64-version.txt')
+    zf.close
+    zf2 = ::Zip::File.open('test/data/generated/zip64-version.zip')
+    refute(zf2.instance_variable_defined?(:@zip_64_extensible))
+  end
+
   def test_write_buffer
     newName = "renamedFirst"
     zf = ::Zip::File.new(TEST_ZIP.zip_name)
