@@ -9,7 +9,7 @@ module Zip
                   :name, :size, :local_header_offset, :zipfile, :fstype, :external_file_attributes,
                   :gp_flags, :header_signature, :follow_symlinks,
                   :restore_times, :restore_permissions, :restore_ownership,
-                  :unix_uid, :unix_gid, :unix_perms,
+                  :unix_uid, :unix_gid, :unix_perms, :version_needed_to_extract,
                   :dirty
     attr_reader :ftype, :filepath # :nodoc:
 
@@ -635,9 +635,9 @@ module Zip
     def parse_zip64_extra(for_local_header) #:nodoc:all
       if zip64 = @extra['Zip64']
         if for_local_header
-          @size, @compressed_size = zip64.parse(@size, @compressed_size)
+          @size, @compressed_size = zip64.parse_local(@size, @compressed_size)
         else
-          @size, @compressed_size, @local_header_offset = zip64.parse(@size, @compressed_size, @local_header_offset)
+          @size, @compressed_size, @local_header_offset = zip64.parse_cdir(@size, @compressed_size, @local_header_offset)
         end
       end
     end
@@ -649,31 +649,25 @@ module Zip
       unless for_local_header
         need_zip64 ||= @local_header_offset >= 0xFFFFFFFF
       end
+      @version_needed_to_extract = VERSION_NEEDED_TO_EXTRACT_ZIP64 if need_zip64
+      # otherwise downlevel readers can safely ignore the extra
 
-      if need_zip64
-        @version_needed_to_extract = VERSION_NEEDED_TO_EXTRACT_ZIP64
-        @extra.delete('Zip64Placeholder')
+      if for_local_header
+        # local entry always needs a zip64 extension, because it's written to the zipfile
+        # before we know the size of the content
         zip64 = @extra.create('Zip64')
-        if for_local_header
-          # local header always includes size and compressed size
-          zip64.original_size = @size
-          zip64.compressed_size = @compressed_size
-        else
+        zip64.original_size = @size
+        zip64.compressed_size = @compressed_size
+      else
+        # only put a zip64 extension in the central directory entry if it's needed
+        if need_zip64
           # central directory entry entries include whichever fields are necessary
+          zip64 = @extra.create('Zip64')
           zip64.original_size = @size if @size >= 0xFFFFFFFF
           zip64.compressed_size = @compressed_size if @compressed_size >= 0xFFFFFFFF
           zip64.relative_header_offset = @local_header_offset if @local_header_offset >= 0xFFFFFFFF
-        end
-      else
-        @extra.delete('Zip64')
-
-        # if this is a local header entry, create a placeholder
-        # so we have room to write a zip64 extra field afterward
-        # (we won't know if it's needed until the file data is written)
-        if for_local_header
-          @extra.create('Zip64Placeholder')
         else
-          @extra.delete('Zip64Placeholder')
+          @extra.delete('Zip64')
         end
       end
     end

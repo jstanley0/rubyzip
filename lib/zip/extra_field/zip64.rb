@@ -8,7 +8,7 @@ module Zip
     def initialize(binstr = nil)
       @content = nil # unparsed binary; we don't actually know what this contains
                      # without looking for FFs in the associated file header
-                     # call parse after initializing with a binary string
+                     # call parse_cdir or parse_local after initializing with a binary string
       @original_size          = nil
       @compressed_size        = nil
       @relative_header_offset = nil
@@ -31,7 +31,7 @@ module Zip
     # pass the values from the base entry (if applicable)
     # wider values are only present in the extra field for base values set to all FFs
     # returns the final values for the four attributes (from the base or zip64 extra record)
-    def parse(original_size, compressed_size, relative_header_offset = nil, disk_start_number = nil)
+    def parse_cdir(original_size, compressed_size, relative_header_offset = nil, disk_start_number = nil)
       @original_size = extract(8, 'Q<') if original_size == 0xFFFFFFFF
       @compressed_size = extract(8, 'Q<') if compressed_size == 0xFFFFFFFF
       @relative_header_offset = extract(8, 'Q<') if relative_header_offset && relative_header_offset == 0xFFFFFFFF
@@ -41,6 +41,15 @@ module Zip
        @compressed_size || compressed_size,
        @relative_header_offset || relative_header_offset,
        @disk_start_number || disk_start_number]
+    end
+
+    # supposed to contain both sizes, but deal with truncated ones
+    def parse_local(original_size, compressed_size)
+      @original_size = extract(8, 'Q<') if @content.size >= 8
+      @compressed_size = extract(8, 'Q<') if @content.size >= 8
+      @content = nil
+      [@original_size || original_size,
+       @compressed_size || compressed_size]
     end
 
     def extract(size, format)

@@ -353,6 +353,16 @@ class ZipFileTest < MiniTest::Unit::TestCase
     test_double_commit('test/data/generated/double_commit_test64.zip')
   end
 
+  def test_zip64_demand_cd
+    ::Zip.write_zip64_support = true
+    ::FileUtils.touch('test/data/generated/test-zip64-demand-cd.txt')
+    zf = ::Zip::File.open('test/data/generated/zip64-demand-cd.zip', ::Zip::File::CREATE)
+    zf.add('test1.txt', 'test/data/generated/test-zip64-demand-cd.txt')
+    zf.close
+    zf2 = ::Zip::File.open('test/data/generated/zip64-demand-cd.zip')
+    refute(zf2.instance_variable_defined?(:@zip_64_extensible))
+  end
+
   def test_write_buffer
     newName = "renamedFirst"
     zf = ::Zip::File.new(TEST_ZIP.zip_name)
